@@ -1,0 +1,22 @@
+= Summary
+
+. link:README.md[Introduction]
+. link:installation.md[Installation]
+.. link:feature-matrix.md[Feature matrix]
+. link:usage.md[Usage]
+. link:workloads.md[Workloads]
+.. link:workloads/virtual-machines.md[Virtual Machines]
+... link:vm-creation.md[Creation]
+... link:vm-presets.md[Presets]
+... link:vm-life-cycle.md[Life-cycle]
+... link:service.md[Expose Service]
+... link:access.md[Access]
+... link:disks-and-volumes.md[Disks and Volumes]
+... link:startup-scripts.md[Startup Scripts]
+... link:guest-os-info.md[Guest Operating System Information]
+... link:machine.md[Virtualized Hardware Configuration]
+... link:assign-vm-node.md[Assigning VMs to Nodes]
+.. link:workloads/controllers.md[Controllers]
+... link:replicaset.md[Virtual Machine Replica Set]
+. link:additional-resources.md[Additional resources]
+
