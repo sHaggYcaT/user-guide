@@ -1,6 +1,6 @@
 = Summary
 
-. link:README.md[Introduction]
+. link:README.adoc[Introduction]
 . link:installation.md[Installation]
 .. link:feature-matrix.md[Feature matrix]
 . link:usage.md[Usage]
