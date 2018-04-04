@@ -1,18 +1,15 @@
 # Assigning VMs to Nodes
 
-You can constrain the VM to only run on specific nodes or to prefer running on
-specific nodes:
+You can constrain the VM to only run on specific nodes or to prefer running on specific nodes:
 
- * **nodeSelector**
- * **Affinity and anti-affinity**
+* **nodeSelector**
+* **Affinity and anti-affinity**
 
 ## nodeSelector
 
-Setting `spec.nodeSelector` requirements, constrains the scheduler to only
-schedule VMs on nodes, which contain the specified labels. In the following
-example the vm contains the labels `cpu: slow` and `storage: fast`:
+Setting `spec.nodeSelector` requirements, constrains the scheduler to only schedule VMs on nodes, which contain the specified labels. In the following example the vm contains the labels `cpu: slow` and `storage: fast`:
 
-```
+```text
 metadata:
   name: testvm-ephemeral
 apiVersion: kubevirt.io/v1alpha1
@@ -36,21 +33,15 @@ spec:
         claimName: mypvc
 ```
 
-Thus the scheduler will only shedule the vm to nodes which contain these labels
-in their metadata. It works exactly like the Pods `nodeSelector`. See the [Pod
-nodeSelector
-Documentation](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector)
-for more examples.
+Thus the scheduler will only shedule the vm to nodes which contain these labels in their metadata. It works exactly like the Pods `nodeSelector`. See the [Pod nodeSelector Documentation](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector) for more examples.
 
 ## Affinity and anti-affinity
 
-The `spec.affinity` field allows specifying hard- and soft-affinity for VMs. It
-is possible to write matching rules agains  workloads (VMs and Pods) and Nodes.
-Since VMs are a workload type based on Pods, Pod-affinity affects VMs as well.
+The `spec.affinity` field allows specifying hard- and soft-affinity for VMs. It is possible to write matching rules agains workloads \(VMs and Pods\) and Nodes. Since VMs are a workload type based on Pods, Pod-affinity affects VMs as well.
 
 An example for `podAffinity` and `podAntiAffinity` may look like this:
 
-```
+```text
 metadata:
   name: testvm-ephemeral
 apiVersion: kubevirt.io/v1alpha1
@@ -95,7 +86,5 @@ spec:
         claimName: mypvc
 ```
 
-Affinity and anti-affinity works exactly like the Pods `affinity`. This
-includes `podAffinity`, `podAntiAffinity`, `nodeAffinity` and
-`nodeAntiAffinity`. See the [Pod affinity and anti-affinity Documentation](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity)
-for more examples and details.
+Affinity and anti-affinity works exactly like the Pods `affinity`. This includes `podAffinity`, `podAntiAffinity`, `nodeAffinity` and `nodeAntiAffinity`. See the [Pod affinity and anti-affinity Documentation](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity) for more examples and details.
+

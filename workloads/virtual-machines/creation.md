@@ -1,12 +1,12 @@
-## Creation
+# Creation
 
-### API Overview
+## API Overview
 
 With the installation of KubeVirt, new types are added to the Kubernetes API to managed Virtual Machines.
 
 You can interact with the new resources \(via `kubectl`\) as you would with any other API resource.
 
-### VirtualMachine API
+## VirtualMachine API
 
 > Note: Currently there is no offline documentation of the VirtualMachine API.
 
@@ -38,3 +38,4 @@ spec:
         lun: 2
         targetPortal: iscsi-demo-target.kube-system.svc.cluster.local
 ```
+
