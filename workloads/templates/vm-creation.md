@@ -6,7 +6,7 @@ The [OpenShift's template mechanism](https://docs.openshift.org/latest/dev_guide
 
 In order to create a virtual machine via OpenShift CLI, you need to provide a template defining the corresponding object and its metadata.
 
-!> Only `VirtualMachine` object is currently supported.
+! Only `VirtualMachine` object is currently supported.
 
 
 ## Example template
@@ -117,7 +117,7 @@ virtualmachine.kubevirt.io/testvm created
 
 The command above results in creating a Kubernetes object according to the specification given by the template \(in this example it is an instance of the VirtualMachine object\).
 
-It's possible to get list of available parameters using following command:
+It's possible to get list of available parameters using the following command:
 
 ```bash
 $ oc process -f cluster/examples/vmi-template-fedora.yaml --parameters
@@ -136,14 +136,14 @@ $ oc patch virtualmachine testvm --type merge -p '{"spec":{"running":true}}'
 virtualmachine.kubevirt.io/testvm patched
 ```
 
-Do not forget about virtctl tool. Use it in the real cases instead of using kubernetes API, can be more convinient. Example: 
+Do not forget about virtctl tool. Using it in the real cases instead of using kubernetes API can be more convinient. Example: 
 
 ```bash
 $ virtctl start testvm
 VM testvm was scheduled to start
 ```
 
-As fast as VM starts, kubernates creates new type of object - VirtualMachineInstance. It has similar name as VirtualMachine. Example (not full output, it's too big):
+As soon as VM starts, kubernates creates new type of object - VirtualMachineInstance. It has similar name to VirtualMachine. Example (not full output, it's too big):
 
 ```bash
 $ kubectl describe vm testvm
@@ -164,11 +164,11 @@ Kubevirt VM templates, just like kubevirt VM/VMI yaml configs, supports [cloud-i
 
 ## Using registry images
 
-Kubevirt VM templates, just like kubevirt VM/VMI yaml configs, supports creating VM's disks from registry. RegistryDisk is special type volume, which supports downloading images from user-defined registry server.
+Kubevirt VM templates, just like kubevirt VM/VMI yaml configs, supports creating VM's disks from registry. RegistryDisk is a special type volume which supports downloading images from user-defined registry server.
 
-## **Hack** - using pre-downloaded image
+## **Hack** - use pre-downloaded image
 
-Kubevirt VM templates, just like kubevirt VM/VMI yaml configs, can use pre-downloaded VM image, which can be useful feature especially in the debug/development/testing cases. No special parameters requires in the VM template or VM/VMI yaml config. The main idea is create Kubernetes PersistentVolume and PersistentVolumeClaim corresponding to existing image in the file system. Example:
+Kubevirt VM templates, just like kubevirt VM/VMI yaml configs, can use pre-downloaded VM image, which can be a useful feature especially in the debug/development/testing cases. No special parameters required in the VM template or VM/VMI yaml config. The main idea is to create Kubernetes PersistentVolume and PersistentVolumeClaim corresponding to existing image in the file system. Example:
 
 ```yaml
 ---
