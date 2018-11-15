@@ -17,45 +17,71 @@ Here is an example template that defines an instance of the `VirtualMachine` obj
 apiVersion: v1
 kind: Template
 metadata:
-  name: fedora-vmi-template
   annotations:
-    description: "OpenShift KubeVirt Fedora VM template"
-    tags: "kubevirt,openshift,template,linux"
+    description: OCP KubeVirt Fedora 27 VM template
+    iconClass: icon-fedora
+    tags: kubevirt,ocp,template,linux,virtualmachine
+  creationTimestamp: null
   labels:
     kubevirt.io/os: fedora27
-    miq.github.io/kubevirt-is-vmi-template: "true"
+    miq.github.io/kubevirt-is-vm-template: "true"
+  name: vm-template-fedora
 objects:
 - apiVersion: kubevirt.io/v1alpha2
   kind: VirtualMachine
   metadata:
-    name: ${NAME}
+    creationTimestamp: null
     labels:
       kubevirt-vm: vm-${NAME}
+      kubevirt.io/os: fedora27
+    name: ${NAME}
   spec:
+    running: false
     template:
       metadata:
+        creationTimestamp: null
         labels:
           kubevirt-vm: vm-${NAME}
+          kubevirt.io/os: fedora27
       spec:
         domain:
           cpu:
             cores: ${{CPU_CORES}}
-          resources:
-            requests:
-              memory: ${{MEMORY}}
           devices:
             disks:
-              - name: disk0
-                volumeName: root
+            - disk:
+                bus: virtio
+              name: registrydisk
+              volumeName: registryvolume
+            - disk:
+                bus: virtio
+              name: cloudinitdisk
+              volumeName: cloudinitvolume
+          machine:
+            type: ""
+          resources:
+            requests:
+              memory: ${MEMORY}
+        terminationGracePeriodSeconds: 0
         volumes:
-          - name: root
-            persistentVolumeClaim:
-              claimName: myroot
+        - name: registryvolume
+          registryDisk:
+            image: registry:5000/kubevirt/fedora-cloud-registry-disk-demo:devel
+        - cloudInitNoCloud:
+            userData: |-
+              #cloud-config
+              password: fedora
+              chpasswd: { expire: False }
+          name: cloudinitvolume
+  status: {}
 parameters:
-- name: NAME
-  description: Name for the new VM
-- name: CPU_CORES
-  description: Amount of cores
+- description: Name for the new VM
+  name: NAME
+- description: Amount of memory
+  name: MEMORY
+  value: 4096Mi
+- description: Amount of cores
+  name: CPU_CORES
   value: "4"
 ```
 
@@ -63,7 +89,7 @@ Note that the template above defines free parameters \(`NAME` and `CPU_CORES`\) 
 
 An OpenShift template has to be converted into the JSON file via `oc process` command, that also allows you to set the template parameters.
 
-A complete example can be found in the [KubeVirt repository](https://github.com/kubevirt/kubevirt/blob/master/cluster/vmi-template-fedora.yaml).
+A complete example can be found in the [KubeVirt repository](https://github.com/kubevirt/kubevirt/blob/master/cluster/examples/vm-template-fedora.yaml).
 
 !> You need to be logged in by `oc login` command.
 
@@ -83,23 +109,100 @@ $ oc process -f cluster/vmi-template-fedora.yaml\
 The JSON file is usually applied directly by piping the processed output to `oc create` command.
 
 ```bash
-$ oc process -f cluster/vmi-template-fedora.yaml \
-    -p NAME=testvmi \
+$ oc process -f cluster/examples/vm-template-fedora.yaml \
+    -p NAME=testvm \
     -p CPU_CORES=2 \
     | oc create -f -
-virtualmachine "testvmi" created
+virtualmachine.kubevirt.io/testvm created
 ```
 
 The command above results in creating a Kubernetes object according to the specification given by the template \(in this example it is an instance of the VirtualMachine object\).
 
+It's possible to get list of available parameters using following command:
+
+```bash
+$ oc process -f cluster/examples/vmi-template-fedora.yaml --parameters
+NAME                DESCRIPTION           GENERATOR           VALUE
+NAME                Name for the new VM                       
+MEMORY              Amount of memory                          4096Mi
+CPU_CORES           Amount of cores                           4
+```
 
 ## Starting virtual machine from the created object
 
 The created object is now a regular VirtualMachine object and from now it can be controlled by accessing Kubernetes API resources.  The preferred way how to do this from within the OpenShift environment is to use `oc patch` command.
 
 ``` bash
-$ oc patch virtualmachine testvmi --type merge -p '{"spec":{"running":true}}'
-virtualmachine "testvmi" patched
+$ oc patch virtualmachine testvm --type merge -p '{"spec":{"running":true}}'
+virtualmachine.kubevirt.io/testvm patched
+
 ```
+
+Do not forget about virtctl tool. Use it in the real cases instead of using kubernetes API, can be more convinient. Example: 
+
+```bash
+$ virtctl start testvmi
+
+```
+
+As fast as VM starts, kubernates creates new type of object - VirtualMachineInstance. It has similar name as VirtualMachine. Example:
+
+```bash
+$ kubectl describe testvmi
+
+
+```
+
+## Cloud-init script and parameters
+
+Kubevirt VM templates, just like kubevirt VM/VMI yaml configs, supports [cloud-init scripts](https://cloudinit.readthedocs.io/en/latest/)
+
+
+## Using registry images
+
+Kubevirt VM templates, just like kubevirt VM/VMI yaml configs, supports creating VM's disks from registry. RegistryDisk is special type volume, which supports downloading images from user-defined registry server.
+
+## **Hack** - using pre-downloaded image
+
+Kubevirt VM templates, just like kubevirt VM/VMI yaml configs, can use pre-downloaded VM image, which can be useful feature especially in the debug/development/testing cases. No special parameters requires in the VM template or VM/VMI yaml config. The main idea is create Kubernetes PersistentVolume and PersistentVolumeClaim corresponding to existing image in the file system. Example:
+
+```yaml
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: mypv
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 10G
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/sda1/images/testvm"
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: mypvc
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10G
+
+```
+
+If you create this PV/PVC, you have to put VM image in the file path
+
+``` bash
+/mnt/sda1/images/testvm/disk.img
+```
+
+Avaible in the each OpenShift/Kubevirt compute nodes.
 
 You can follow [Virtual Machine Lifecycle Guide](/workloads/virtual-machines/life-cycle) for further reference.
