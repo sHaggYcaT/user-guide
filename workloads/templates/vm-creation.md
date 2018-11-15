@@ -103,7 +103,6 @@ $ oc process -f cluster/vmi-template-fedora.yaml\
     "metadata": {},
     "items": [
         {
-...
 ```
 
 The JSON file is usually applied directly by piping the processed output to `oc create` command.
@@ -135,22 +134,27 @@ The created object is now a regular VirtualMachine object and from now it can be
 ``` bash
 $ oc patch virtualmachine testvm --type merge -p '{"spec":{"running":true}}'
 virtualmachine.kubevirt.io/testvm patched
-
 ```
 
 Do not forget about virtctl tool. Use it in the real cases instead of using kubernetes API, can be more convinient. Example: 
 
 ```bash
-$ virtctl start testvmi
-
+$ virtctl start testvm
+VM testvm was scheduled to start
 ```
 
-As fast as VM starts, kubernates creates new type of object - VirtualMachineInstance. It has similar name as VirtualMachine. Example:
+As fast as VM starts, kubernates creates new type of object - VirtualMachineInstance. It has similar name as VirtualMachine. Example (not full output, it's too big):
 
 ```bash
-$ kubectl describe testvmi
-
-
+$ kubectl describe vm testvm
+name:         testvm
+Namespace:    myproject
+Labels:       kubevirt-vm=vm-testvm
+              kubevirt.io/os=fedora27
+Annotations:  <none>
+API Version:  kubevirt.io/v1alpha2
+Kind:         VirtualMachine
+.......
 ```
 
 ## Cloud-init script and parameters
@@ -197,12 +201,18 @@ spec:
 
 ```
 
-If you create this PV/PVC, you have to put VM image in the file path
+If you create this PV/PVC, then you have to put VM image in the file path
 
-``` bash
+```bash
 /mnt/sda1/images/testvm/disk.img
 ```
 
 Avaible in the each OpenShift/Kubevirt compute nodes.
 
+## WebUI
+Kubevirt project has [the official UI](https://github.com/kubevirt/web-ui). This UI supports creation VM using templates and templates features - flavors and workload profiles.
+To create VM from template, choose WorkLoads in the left panel >> press to the "Create Virtual Machine" blue button >> choose "Create from Wizzard". Next, you have to see "Create Virtual Machine" window
+
+
+## Additional information
 You can follow [Virtual Machine Lifecycle Guide](/workloads/virtual-machines/life-cycle) for further reference.
