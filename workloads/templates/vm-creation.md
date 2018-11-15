@@ -213,6 +213,8 @@ Avaible in the each OpenShift/Kubevirt compute nodes.
 Kubevirt project has [the official UI](https://github.com/kubevirt/web-ui). This UI supports creation VM using templates and templates features - flavors and workload profiles.
 To create VM from template, choose WorkLoads in the left panel >> press to the "Create Virtual Machine" blue button >> choose "Create from Wizzard". Next, you have to see "Create Virtual Machine" window
 
+## common-templates
+There is the [common-templates subproject](https://github.com/kubevirt/common-templates/) subproject. It provides official prepaired and useful templates. [Additional doc available](/workloads/templates/common-templates.md)
 
 ## Additional information
 You can follow [Virtual Machine Lifecycle Guide](/workloads/virtual-machines/life-cycle) for further reference.
